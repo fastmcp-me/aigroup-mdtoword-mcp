@@ -1,6 +1,6 @@
 {
   "name": "aigroup-mdtoword-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "本地 Markdown 到 Word 文档转换工具，支持 MCP 协议通信",
   "keywords": [
     "markdown",
@@ -14,14 +14,14 @@
   ],
   "author": {
     "name": "AI Group",
-    "email": "support@aigroup.com"
+    "email": "jackdark425@gmail.com"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/aigroup/aigroup-mdtoword-mcp.git"
   },
-  "homepage": "https://github.com/aigroup/aigroup-mdtoword-mcp#readme",
+  "homepage": "https://github.com/jackdark425",
   "bugs": {
     "url": "https://github.com/aigroup/aigroup-mdtoword-mcp/issues"
   },
