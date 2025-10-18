@@ -1,8 +1,0 @@
-{"mcpServers":{
-    "aigroup-mdtoword-mcp": {
-      "command": "npx",
-      "args": ["-y", "aigroup-mdtoword-mcp"],
-      "alwaysAllow": ["markdown_to_docx"]
-    }
-  }
-}
