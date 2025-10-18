@@ -73,7 +73,122 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
           styleConfig: {
             type: "object",
-            description: "样式配置对象，用于自定义文档外观"
+            description: "样式配置对象，用于自定义文档外观。支持：主题系统、水印、页眉页脚、自动目录、增强表格样式、图片处理等",
+            properties: {
+              theme: {
+                type: "object",
+                description: "主题配置 - 统一管理颜色、字体、间距",
+                properties: {
+                  name: { type: "string", description: "主题名称" },
+                  colors: {
+                    type: "object",
+                    description: "颜色配置",
+                    properties: {
+                      primary: { type: "string", description: "主色调（6位十六进制）" },
+                      secondary: { type: "string", description: "辅助色（6位十六进制）" },
+                      text: { type: "string", description: "文本颜色（6位十六进制）" }
+                    }
+                  },
+                  fonts: {
+                    type: "object",
+                    description: "字体配置",
+                    properties: {
+                      heading: { type: "string", description: "标题字体" },
+                      body: { type: "string", description: "正文字体" },
+                      code: { type: "string", description: "代码字体" }
+                    }
+                  }
+                }
+              },
+              watermark: {
+                type: "object",
+                description: "水印配置 - 为文档添加水印",
+                properties: {
+                  text: { type: "string", description: "水印文本" },
+                  font: { type: "string", description: "水印字体" },
+                  size: { type: "number", description: "水印字号" },
+                  color: { type: "string", description: "水印颜色（6位十六进制）" },
+                  opacity: { type: "number", description: "透明度（0-1）" },
+                  rotation: { type: "number", description: "旋转角度（-90到90）" }
+                }
+              },
+              tableOfContents: {
+                type: "object",
+                description: "目录配置 - 自动生成文档目录",
+                properties: {
+                  enabled: { type: "boolean", description: "是否启用目录" },
+                  title: { type: "string", description: "目录标题" },
+                  levels: { type: "array", description: "包含的标题级别，如[1,2,3]" },
+                  showPageNumbers: { type: "boolean", description: "是否显示页码" }
+                }
+              },
+              headerFooter: {
+                type: "object",
+                description: "页眉页脚配置",
+                properties: {
+                  header: {
+                    type: "object",
+                    description: "页眉配置",
+                    properties: {
+                      content: { type: "string", description: "页眉内容" },
+                      alignment: { type: "string", description: "对齐方式：left/center/right" }
+                    }
+                  },
+                  footer: {
+                    type: "object",
+                    description: "页脚配置",
+                    properties: {
+                      content: { type: "string", description: "页脚内容" },
+                      showPageNumber: { type: "boolean", description: "是否显示页码" },
+                      pageNumberFormat: { type: "string", description: "页码格式文字" }
+                    }
+                  }
+                }
+              },
+              tableStyles: {
+                type: "object",
+                description: "表格样式配置 - 支持列宽、对齐、斑马纹等",
+                properties: {
+                  default: {
+                    type: "object",
+                    properties: {
+                      columnWidths: { type: "array", description: "列宽数组，单位：缇" },
+                      cellAlignment: {
+                        type: "object",
+                        properties: {
+                          horizontal: { type: "string", description: "水平对齐：left/center/right" },
+                          vertical: { type: "string", description: "垂直对齐：top/center/bottom" }
+                        }
+                      },
+                      stripedRows: {
+                        type: "object",
+                        description: "斑马纹配置",
+                        properties: {
+                          enabled: { type: "boolean", description: "是否启用斑马纹" },
+                          oddRowShading: { type: "string", description: "奇数行背景色" },
+                          evenRowShading: { type: "string", description: "偶数行背景色" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              imageStyles: {
+                type: "object",
+                description: "图片样式配置 - 支持尺寸、对齐、边框等",
+                properties: {
+                  default: {
+                    type: "object",
+                    properties: {
+                      maxWidth: { type: "number", description: "最大宽度（缇）" },
+                      maxHeight: { type: "number", description: "最大高度（缇）" },
+                      maintainAspectRatio: { type: "boolean", description: "保持宽高比" },
+                      alignment: { type: "string", description: "对齐方式：left/center/right" }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         required: ["filename"]
