@@ -393,6 +393,26 @@ export class StyleEngine {
       result.emphasisStyles = this.deepMerge(result.emphasisStyles || {}, override.emphasisStyles, overrideExisting);
     }
 
+    // 合并页眉页脚配置
+    if (override.headerFooter) {
+      result.headerFooter = this.deepMerge(result.headerFooter || {}, override.headerFooter, overrideExisting);
+    }
+
+    // 合并水印配置
+    if (override.watermark) {
+      result.watermark = this.deepMerge(result.watermark || {}, override.watermark, overrideExisting);
+    }
+
+    // 合并目录配置
+    if (override.tableOfContents) {
+      result.tableOfContents = this.deepMerge(result.tableOfContents || {}, override.tableOfContents, overrideExisting);
+    }
+
+    // 合并图片样式
+    if (override.imageStyles) {
+      result.imageStyles = this.deepMerge(result.imageStyles || {}, override.imageStyles, overrideExisting);
+    }
+
     return result;
   }
 

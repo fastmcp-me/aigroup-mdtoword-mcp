@@ -222,7 +222,12 @@ export class DocxMarkdownConverter implements MarkdownConverter {
     return new Header({
       children: [
         new Paragraph({
-          text: headerConfig.content,
+          children: [
+            new TextRun({
+              text: headerConfig.content,
+              ...this.convertTextStyleToDocx(headerConfig.textStyle || {})
+            })
+          ],
           alignment: alignment,
           border: headerConfig.border?.bottom ? {
             bottom: {
@@ -279,7 +284,12 @@ export class DocxMarkdownConverter implements MarkdownConverter {
       }));
     } else {
       children.push(new Paragraph({
-        text: footerConfig.content,
+        children: [
+          new TextRun({
+            text: footerConfig.content,
+            ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
+          })
+        ],
         alignment: alignment,
         border: footerConfig.border?.top ? {
           top: {
