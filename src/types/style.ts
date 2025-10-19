@@ -323,7 +323,7 @@ export interface HeaderFooterConfig {
   /** 页眉配置 */
   header?: {
     /** 页眉内容 */
-    content: string;
+    content?: string;
     /** 页眉对齐方式 */
     alignment?: 'left' | 'center' | 'right' | 'both';
     /** 页眉文字样式 */
@@ -336,7 +336,7 @@ export interface HeaderFooterConfig {
   /** 页脚配置 */
   footer?: {
     /** 页脚内容 */
-    content: string;
+    content?: string;
     /** 页脚对齐方式 */
     alignment?: 'left' | 'center' | 'right' | 'both';
     /** 页脚文字样式 */
@@ -347,13 +347,65 @@ export interface HeaderFooterConfig {
     };
     /** 是否显示页码 */
     showPageNumber?: boolean;
-    /** 页码格式 */
+    /** 页码格式（前缀文本） */
     pageNumberFormat?: string;
+    /** 是否显示总页数 */
+    showTotalPages?: boolean;
+    /** 总页数格式（连接文本，如 " of "） */
+    totalPagesFormat?: string;
+  };
+  /** 首页页眉（当differentFirstPage为true时使用） */
+  firstPageHeader?: {
+    content?: string;
+    alignment?: 'left' | 'center' | 'right' | 'both';
+    textStyle?: TextStyle;
+    border?: {
+      bottom?: BorderStyle;
+    };
+  };
+  /** 首页页脚（当differentFirstPage为true时使用） */
+  firstPageFooter?: {
+    content?: string;
+    alignment?: 'left' | 'center' | 'right' | 'both';
+    textStyle?: TextStyle;
+    border?: {
+      top?: BorderStyle;
+    };
+    showPageNumber?: boolean;
+    pageNumberFormat?: string;
+    showTotalPages?: boolean;
+    totalPagesFormat?: string;
+  };
+  /** 偶数页页眉（当differentOddEven为true时使用） */
+  evenPageHeader?: {
+    content?: string;
+    alignment?: 'left' | 'center' | 'right' | 'both';
+    textStyle?: TextStyle;
+    border?: {
+      bottom?: BorderStyle;
+    };
+  };
+  /** 偶数页页脚（当differentOddEven为true时使用） */
+  evenPageFooter?: {
+    content?: string;
+    alignment?: 'left' | 'center' | 'right' | 'both';
+    textStyle?: TextStyle;
+    border?: {
+      top?: BorderStyle;
+    };
+    showPageNumber?: boolean;
+    pageNumberFormat?: string;
+    showTotalPages?: boolean;
+    totalPagesFormat?: string;
   };
   /** 首页不同 */
   differentFirstPage?: boolean;
   /** 奇偶页不同 */
   differentOddEven?: boolean;
+  /** 页码起始编号 */
+  pageNumberStart?: number;
+  /** 页码格式类型 */
+  pageNumberFormatType?: 'decimal' | 'upperRoman' | 'lowerRoman' | 'upperLetter' | 'lowerLetter';
 }
 
 /**

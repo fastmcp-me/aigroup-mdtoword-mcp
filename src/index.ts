@@ -71,15 +71,46 @@ const TableOfContentsSchema = z.object({
 // 页眉页脚配置 Schema
 const HeaderFooterSchema = z.object({
   header: z.object({
-    content: z.string().optional().describe('页眉内容'),
-    alignment: z.enum(['left', 'center', 'right']).optional().describe('对齐方式'),
-  }).optional(),
+    content: z.string().optional().describe('页眉内容文本'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('页眉对齐方式：left(左对齐)、center(居中)、right(右对齐)、both(两端对齐)'),
+  }).optional().describe('默认页眉配置（应用于所有页或奇数页）'),
   footer: z.object({
-    content: z.string().optional().describe('页脚内容'),
-    showPageNumber: z.boolean().optional().describe('是否显示页码'),
-    pageNumberFormat: z.string().optional().describe('页码格式文字'),
-  }).optional(),
-}).optional();
+    content: z.string().optional().describe('页脚内容文本（页码前的文字，如"第 "）'),
+    showPageNumber: z.boolean().optional().describe('是否显示当前页码。设为true时会在页脚显示页码'),
+    pageNumberFormat: z.string().optional().describe('页码后缀文本（紧跟页码后的文字，如" 页"）。示例：content="第 " + 页码 + pageNumberFormat=" 页" = "第 1 页"'),
+    showTotalPages: z.boolean().optional().describe('是否显示总页数。设为true时会显示文档总页数'),
+    totalPagesFormat: z.string().optional().describe('总页数前的连接文本（如" / 共 "、" of "）。示例：完整格式为"第 1 页 / 共 5 页"'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('页脚对齐方式'),
+  }).optional().describe('默认页脚配置（应用于所有页或奇数页）。支持灵活的页码格式组合'),
+  firstPageHeader: z.object({
+    content: z.string().optional().describe('首页页眉内容'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('首页页眉对齐方式'),
+  }).optional().describe('首页专用页眉（需设置differentFirstPage为true）。常用于封面页不显示页眉或显示特殊内容'),
+  firstPageFooter: z.object({
+    content: z.string().optional().describe('首页页脚内容'),
+    showPageNumber: z.boolean().optional().describe('首页是否显示页码'),
+    pageNumberFormat: z.string().optional().describe('首页页码格式'),
+    showTotalPages: z.boolean().optional().describe('首页是否显示总页数'),
+    totalPagesFormat: z.string().optional().describe('首页总页数格式'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('首页页脚对齐'),
+  }).optional().describe('首页专用页脚（需设置differentFirstPage为true）。常用于封面页不显示页码'),
+  evenPageHeader: z.object({
+    content: z.string().optional().describe('偶数页页眉内容'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('偶数页页眉对齐'),
+  }).optional().describe('偶数页专用页眉（需设置differentOddEven为true）。用于双面打印时奇偶页显示不同内容'),
+  evenPageFooter: z.object({
+    content: z.string().optional().describe('偶数页页脚内容'),
+    showPageNumber: z.boolean().optional().describe('偶数页是否显示页码'),
+    pageNumberFormat: z.string().optional().describe('偶数页页码格式'),
+    showTotalPages: z.boolean().optional().describe('偶数页是否显示总页数'),
+    totalPagesFormat: z.string().optional().describe('偶数页总页数格式'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('偶数页页脚对齐'),
+  }).optional().describe('偶数页专用页脚（需设置differentOddEven为true）'),
+  differentFirstPage: z.boolean().optional().describe('是否首页不同。设为true时首页使用firstPageHeader和firstPageFooter，常用于封面页'),
+  differentOddEven: z.boolean().optional().describe('是否奇偶页不同。设为true时偶数页使用evenPageHeader和evenPageFooter，用于双面打印'),
+  pageNumberStart: z.number().optional().describe('页码起始编号。默认为1，可设置为其他数字如5表示从第5页开始编号'),
+  pageNumberFormatType: z.enum(['decimal', 'upperRoman', 'lowerRoman', 'upperLetter', 'lowerLetter']).optional().describe('页码数字格式：decimal(阿拉伯数字1,2,3)、upperRoman(大写罗马I,II,III)、lowerRoman(小写罗马i,ii,iii)、upperLetter(大写字母A,B,C)、lowerLetter(小写字母a,b,c)'),
+}).optional().describe('页眉页脚配置。支持显示页码、总页数、不同首页、奇偶页不同等功能。页码格式可灵活组合，如"第 1 页 / 共 5 页"、"Page 1 of 5"等');
 
 // 表格样式配置 Schema
 const TableStylesSchema = z.object({

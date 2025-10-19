@@ -58,15 +58,46 @@ const TableOfContentsSchema = z.object({
 
 const HeaderFooterSchema = z.object({
   header: z.object({
-    content: z.string().optional(),
-    alignment: z.enum(['left', 'center', 'right']).optional(),
-  }).optional(),
+    content: z.string().optional().describe('页眉内容文本'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('页眉对齐方式'),
+  }).optional().describe('默认页眉配置'),
   footer: z.object({
+    content: z.string().optional().describe('页脚内容（页码前的文字，如"第 "）'),
+    showPageNumber: z.boolean().optional().describe('是否显示当前页码'),
+    pageNumberFormat: z.string().optional().describe('页码后缀文本（如" 页"）。示例：content="第 " + 页码 + pageNumberFormat=" 页" = "第 1 页"'),
+    showTotalPages: z.boolean().optional().describe('是否显示总页数'),
+    totalPagesFormat: z.string().optional().describe('总页数连接文本（如" / 共 "）。示例："第 1 页 / 共 5 页"'),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional().describe('页脚对齐方式'),
+  }).optional().describe('默认页脚配置。支持灵活的页码格式组合'),
+  firstPageHeader: z.object({
+    content: z.string().optional(),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional(),
+  }).optional().describe('首页专用页眉（需设置differentFirstPage为true）'),
+  firstPageFooter: z.object({
     content: z.string().optional(),
     showPageNumber: z.boolean().optional(),
     pageNumberFormat: z.string().optional(),
-  }).optional(),
-}).optional();
+    showTotalPages: z.boolean().optional(),
+    totalPagesFormat: z.string().optional(),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional(),
+  }).optional().describe('首页专用页脚（需设置differentFirstPage为true）'),
+  evenPageHeader: z.object({
+    content: z.string().optional(),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional(),
+  }).optional().describe('偶数页专用页眉（需设置differentOddEven为true）'),
+  evenPageFooter: z.object({
+    content: z.string().optional(),
+    showPageNumber: z.boolean().optional(),
+    pageNumberFormat: z.string().optional(),
+    showTotalPages: z.boolean().optional(),
+    totalPagesFormat: z.string().optional(),
+    alignment: z.enum(['left', 'center', 'right', 'both']).optional(),
+  }).optional().describe('偶数页专用页脚（需设置differentOddEven为true）'),
+  differentFirstPage: z.boolean().optional().describe('是否首页不同'),
+  differentOddEven: z.boolean().optional().describe('是否奇偶页不同'),
+  pageNumberStart: z.number().optional().describe('页码起始编号，默认为1'),
+  pageNumberFormatType: z.enum(['decimal', 'upperRoman', 'lowerRoman', 'upperLetter', 'lowerLetter']).optional().describe('页码格式：decimal(1,2,3)、upperRoman(I,II,III)、lowerRoman(i,ii,iii)、upperLetter(A,B,C)、lowerLetter(a,b,c)'),
+}).optional().describe('页眉页脚配置。支持页码、总页数、不同首页、奇偶页不同。页码格式示例："第 1 页 / 共 5 页"、"Page 1 of 5"');
 
 const TableStylesSchema = z.object({
   default: z.object({

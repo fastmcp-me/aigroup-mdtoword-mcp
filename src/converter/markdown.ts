@@ -24,7 +24,8 @@ import {
   AlignmentType,
   Header,
   Footer,
-  PageNumber,
+  SimpleField,
+  NumberFormat,
   TableOfContents
 } from 'docx';
 
@@ -154,24 +155,62 @@ export class DocxMarkdownConverter implements MarkdownConverter {
       properties: {
         page: {
           size: this.getPageSize(),
-          margin: this.getPageMargins()
-        }
+          margin: this.getPageMargins(),
+          // 添加页码配置
+          pageNumbers: this.effectiveStyleConfig.headerFooter ? {
+            start: this.effectiveStyleConfig.headerFooter.pageNumberStart || 1,
+            formatType: this.getPageNumberFormat(this.effectiveStyleConfig.headerFooter.pageNumberFormatType)
+          } : undefined
+        },
+        // 添加首页不同和奇偶页不同配置
+        titlePage: this.effectiveStyleConfig.headerFooter?.differentFirstPage || false,
+        differentOddAndEven: this.effectiveStyleConfig.headerFooter?.differentOddEven || false
       },
       children: children
     };
 
     // 添加页眉
-    if (this.effectiveStyleConfig.headerFooter?.header) {
-      sectionConfig.headers = {
-        default: this.createHeader(this.effectiveStyleConfig.headerFooter.header)
-      };
+    if (this.effectiveStyleConfig.headerFooter?.header ||
+        this.effectiveStyleConfig.headerFooter?.firstPageHeader ||
+        this.effectiveStyleConfig.headerFooter?.evenPageHeader) {
+      sectionConfig.headers = {};
+      
+      // 默认页眉（奇数页）
+      if (this.effectiveStyleConfig.headerFooter.header) {
+        sectionConfig.headers.default = this.createHeaderFromConfig(this.effectiveStyleConfig.headerFooter.header);
+      }
+      
+      // 首页页眉
+      if (this.effectiveStyleConfig.headerFooter.firstPageHeader && this.effectiveStyleConfig.headerFooter.differentFirstPage) {
+        sectionConfig.headers.first = this.createHeaderFromConfig(this.effectiveStyleConfig.headerFooter.firstPageHeader);
+      }
+      
+      // 偶数页页眉
+      if (this.effectiveStyleConfig.headerFooter.evenPageHeader && this.effectiveStyleConfig.headerFooter.differentOddEven) {
+        sectionConfig.headers.even = this.createHeaderFromConfig(this.effectiveStyleConfig.headerFooter.evenPageHeader);
+      }
     }
 
     // 添加页脚
-    if (this.effectiveStyleConfig.headerFooter?.footer) {
-      sectionConfig.footers = {
-        default: this.createFooter(this.effectiveStyleConfig.headerFooter.footer)
-      };
+    if (this.effectiveStyleConfig.headerFooter?.footer ||
+        this.effectiveStyleConfig.headerFooter?.firstPageFooter ||
+        this.effectiveStyleConfig.headerFooter?.evenPageFooter) {
+      sectionConfig.footers = {};
+      
+      // 默认页脚（奇数页）
+      if (this.effectiveStyleConfig.headerFooter.footer) {
+        sectionConfig.footers.default = this.createFooterFromConfig(this.effectiveStyleConfig.headerFooter.footer);
+      }
+      
+      // 首页页脚
+      if (this.effectiveStyleConfig.headerFooter.firstPageFooter && this.effectiveStyleConfig.headerFooter.differentFirstPage) {
+        sectionConfig.footers.first = this.createFooterFromConfig(this.effectiveStyleConfig.headerFooter.firstPageFooter);
+      }
+      
+      // 偶数页页脚
+      if (this.effectiveStyleConfig.headerFooter.evenPageFooter && this.effectiveStyleConfig.headerFooter.differentOddEven) {
+        sectionConfig.footers.even = this.createFooterFromConfig(this.effectiveStyleConfig.headerFooter.evenPageFooter);
+      }
     }
 
     // 准备文档配置
@@ -205,9 +244,9 @@ export class DocxMarkdownConverter implements MarkdownConverter {
   }
 
   /**
-   * 创建页眉
+   * 创建页眉（从配置对象）
    */
-  private createHeader(headerConfig: NonNullable<typeof this.effectiveStyleConfig.headerFooter>['header']): Header {
+  private createHeaderFromConfig(headerConfig: any): Header {
     if (!headerConfig) {
       return new Header({
         children: []
@@ -219,15 +258,19 @@ export class DocxMarkdownConverter implements MarkdownConverter {
                      headerConfig.alignment === 'right' ? AlignmentType.RIGHT :
                      AlignmentType.LEFT;
 
+    const children: any[] = [];
+    
+    if (headerConfig.content) {
+      children.push(new TextRun({
+        text: headerConfig.content,
+        ...this.convertTextStyleToDocx(headerConfig.textStyle || {})
+      }));
+    }
+
     return new Header({
       children: [
         new Paragraph({
-          children: [
-            new TextRun({
-              text: headerConfig.content,
-              ...this.convertTextStyleToDocx(headerConfig.textStyle || {})
-            })
-          ],
+          children: children,
           alignment: alignment,
           border: headerConfig.border?.bottom ? {
             bottom: {
@@ -242,9 +285,9 @@ export class DocxMarkdownConverter implements MarkdownConverter {
   }
 
   /**
-   * 创建页脚
+   * 创建页脚（从配置对象）
    */
-  private createFooter(footerConfig: NonNullable<typeof this.effectiveStyleConfig.headerFooter>['footer']): Footer {
+  private createFooterFromConfig(footerConfig: any): Footer {
     if (!footerConfig) {
       return new Footer({
         children: []
@@ -260,20 +303,46 @@ export class DocxMarkdownConverter implements MarkdownConverter {
 
     // 添加页脚内容
     if (footerConfig.showPageNumber) {
-      children.push(new Paragraph({
-        alignment: alignment,
-        children: [
-          new TextRun({
-            text: footerConfig.content + ' ',
+      // 使用SimpleField（Word域代码）方式实现页码
+      const paragraphChildren: (TextRun | SimpleField)[] = [];
+      
+      // 添加页脚前缀文本
+      if (footerConfig.content) {
+        paragraphChildren.push(new TextRun({
+          text: footerConfig.content,
+          ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
+        }));
+      }
+      
+      // 添加当前页码（使用PAGE域代码）
+      paragraphChildren.push(new SimpleField("PAGE"));
+      
+      // 添加页码后缀文本
+      if (footerConfig.pageNumberFormat) {
+        paragraphChildren.push(new TextRun({
+          text: footerConfig.pageNumberFormat,
+          ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
+        }));
+      }
+      
+      // 如果需要显示总页数
+      if (footerConfig.showTotalPages) {
+        // 添加总页数连接文本（如 " of " 或 " / "）
+        if (footerConfig.totalPagesFormat) {
+          paragraphChildren.push(new TextRun({
+            text: footerConfig.totalPagesFormat,
             ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
-          }),
-          new TextRun({
-            children: [PageNumber.CURRENT]
-          }),
-          new TextRun({
-            text: footerConfig.pageNumberFormat ? ` ${footerConfig.pageNumberFormat}` : ''
-          })
-        ],
+          }));
+        }
+        // 添加总页数（使用NUMPAGES域代码）
+        paragraphChildren.push(new SimpleField("NUMPAGES"));
+      }
+      
+      console.log(`📄 [页脚] 使用SimpleField创建页码，元素数量: ${paragraphChildren.length}`);
+      
+      children.push(new Paragraph({
+        children: paragraphChildren,
+        alignment: alignment,
         border: footerConfig.border?.top ? {
           top: {
             style: footerConfig.border.top.style === 'dash' ? 'dashed' : footerConfig.border.top.style,
@@ -282,7 +351,7 @@ export class DocxMarkdownConverter implements MarkdownConverter {
           }
         } : undefined
       }));
-    } else {
+    } else if (footerConfig.content) {
       children.push(new Paragraph({
         children: [
           new TextRun({
@@ -301,9 +370,20 @@ export class DocxMarkdownConverter implements MarkdownConverter {
       }));
     }
 
-    return new Footer({
+    // 如果children为空，至少添加一个空段落（防止Word无法显示页脚区域）
+    if (children.length === 0) {
+      children.push(new Paragraph({
+        children: [],
+        alignment: alignment
+      }));
+    }
+
+    console.log(`📄 [页脚创建] 页脚Paragraph数量: ${children.length}`);
+    const footer = new Footer({
       children: children
     });
+    console.log(`📄 [页脚创建] Footer对象创建成功`);
+    return footer;
   }
 
   /**
@@ -366,6 +446,21 @@ export class DocxMarkdownConverter implements MarkdownConverter {
    */
   private getPageOrientation(): string {
     return this.effectiveStyleConfig.document?.page?.orientation || 'portrait';
+  }
+
+  /**
+   * 获取页码格式
+   */
+  private getPageNumberFormat(formatType?: string) {
+    // NumberFormat 枚举值映射
+    const formatMap: Record<string, any> = {
+      'decimal': NumberFormat.DECIMAL,
+      'upperRoman': NumberFormat.UPPER_ROMAN,
+      'lowerRoman': NumberFormat.LOWER_ROMAN,
+      'upperLetter': NumberFormat.UPPER_LETTER,
+      'lowerLetter': NumberFormat.LOWER_LETTER
+    };
+    return formatMap[formatType || 'decimal'] || NumberFormat.DECIMAL;
   }
 
   /**
