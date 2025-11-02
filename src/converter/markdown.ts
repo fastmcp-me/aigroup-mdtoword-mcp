@@ -36,10 +36,17 @@ export class DocxMarkdownConverter implements MarkdownConverter {
   private errorHandler: ErrorHandler;
   private tocGenerator: TOCGenerator;
   private mathProcessor: MathProcessor;
+  private baseDir?: string; // Markdown文件所在目录，用于解析相对路径
 
-  constructor(styleConfig?: StyleConfig) {
+  constructor(styleConfig?: StyleConfig, baseDir?: string) {
     const constructorStartTime = Date.now();
     console.log(`🚀 [转换器] 开始初始化 - ${new Date().toISOString()}`);
+    
+    // 保存基础目录
+    this.baseDir = baseDir;
+    if (baseDir) {
+      console.log(`📁 [转换器] 基础目录: ${baseDir}`);
+    }
     
     // 初始化错误处理器
     this.errorHandler = new ErrorHandler();
@@ -316,7 +323,7 @@ export class DocxMarkdownConverter implements MarkdownConverter {
     if (footerConfig.showPageNumber) {
       // 使用SimpleField（Word域代码）方式实现页码
       const paragraphChildren: (TextRun | SimpleField)[] = [];
-      
+
       // 添加页脚前缀文本
       if (footerConfig.content) {
         paragraphChildren.push(new TextRun({
@@ -324,22 +331,20 @@ export class DocxMarkdownConverter implements MarkdownConverter {
           ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
         }));
       }
-      
+
       // 添加当前页码（使用PAGE域代码）
       paragraphChildren.push(new SimpleField("PAGE"));
-      
-      // 添加页码后缀文本
-      if (footerConfig.pageNumberFormat) {
-        paragraphChildren.push(new TextRun({
-          text: footerConfig.pageNumberFormat,
-          ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
-        }));
-      }
-      
-      // 如果需要显示总页数
-      if (footerConfig.showTotalPages) {
-        // 添加总页数连接文本（如 " of " 或 " / "）
-        if (footerConfig.totalPagesFormat) {
+
+      // 如果需要显示总页数，使用完整格式：页码后缀 + 连接文本 + 总页数 + 结束文本
+      if (footerConfig.showTotalPages && footerConfig.totalPagesFormat) {
+        // 添加页码后缀文本（与总页数连接文本合并）
+        if (footerConfig.pageNumberFormat) {
+          paragraphChildren.push(new TextRun({
+            text: footerConfig.pageNumberFormat + footerConfig.totalPagesFormat,
+            ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
+          }));
+        } else {
+          // 如果没有页码后缀格式，使用总页数连接文本
           paragraphChildren.push(new TextRun({
             text: footerConfig.totalPagesFormat,
             ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
@@ -347,6 +352,14 @@ export class DocxMarkdownConverter implements MarkdownConverter {
         }
         // 添加总页数（使用NUMPAGES域代码）
         paragraphChildren.push(new SimpleField("NUMPAGES"));
+      } else {
+        // 不显示总页数时，只添加页码后缀文本
+        if (footerConfig.pageNumberFormat) {
+          paragraphChildren.push(new TextRun({
+            text: footerConfig.pageNumberFormat,
+            ...this.convertTextStyleToDocx(footerConfig.textStyle || {})
+          }));
+        }
       }
       
       console.log(`📄 [页脚] 使用SimpleField创建页码，元素数量: ${paragraphChildren.length}`);
@@ -1197,8 +1210,8 @@ export class DocxMarkdownConverter implements MarkdownConverter {
       console.log(`   - Alt文本: ${alt}`);
       console.log(`   - 标题: ${title}`);
       
-      // 使用ImageProcessor加载图片
-      const { data: imageData, type: imageType, error: loadError } = await ImageProcessor.loadImageData(src);
+      // 使用ImageProcessor加载图片，传递baseDir用于解析相对路径
+      const { data: imageData, type: imageType, error: loadError } = await ImageProcessor.loadImageData(src, this.baseDir);
       
       // 验证图片格式
       if (!ImageProcessor.isSupportedFormat(imageType, imageStyle?.supportedFormats)) {
@@ -1323,65 +1336,41 @@ export class DocxMarkdownConverter implements MarkdownConverter {
       console.log(`   - 标题: ${title}`);
       console.log(`   - 样式配置:`, imageStyle);
       
-      // 处理不同类型的图片源
-      let imageData: Buffer | string;
-      if (src.startsWith('data:')) {
-        // Base64图片
-        console.log(`   - 图片类型: Base64编码`);
-        const base64Parts = src.split('base64,');
-        if (base64Parts.length < 2) {
-          console.error(`   ❌ Base64格式错误: 缺少base64标记`);
-          return null;
-        }
-        imageData = base64Parts[1];
-        console.log(`   - Base64数据长度: ${imageData.length} 字符`);
-      } else if (src.startsWith('http')) {
-        // 网络图片
-        console.log(`   - 图片类型: 网络图片`);
-        console.log(`   - 开始下载图片...`);
-        const downloadStartTime = Date.now();
-        try {
-          const response = await fetch(src);
-          if (!response.ok) {
-            console.error(`   ❌ 图片下载失败: HTTP ${response.status} ${response.statusText}`);
-            return null;
-          }
-          const arrayBuffer = await response.arrayBuffer();
-          imageData = Buffer.from(arrayBuffer);
-          const downloadTime = Date.now() - downloadStartTime;
-          console.log(`   ✅ 图片下载成功，耗时: ${downloadTime}ms，大小: ${imageData.length} 字节`);
-        } catch (fetchError) {
-          console.error(`   ❌ 图片下载异常:`, fetchError);
-          return null;
-        }
-      } else {
-        // 本地图片
-        console.log(`   - 图片类型: 本地文件`);
-        if (!fs.existsSync(src)) {
-          console.error(`   ❌ 本地图片文件不存在: ${src}`);
-          return null;
-        }
-        try {
-          imageData = fs.readFileSync(src);
-          console.log(`   ✅ 本地图片读取成功，大小: ${imageData.length} 字节`);
-        } catch (readError) {
-          console.error(`   ❌ 本地图片读取失败:`, readError);
-          return null;
-        }
+      // 使用ImageProcessor加载图片，传递baseDir用于解析相对路径
+      const { data: imageData, type: imageType, error: loadError } = await ImageProcessor.loadImageData(src, this.baseDir);
+      
+      // 验证图片格式
+      if (!ImageProcessor.isSupportedFormat(imageType, imageStyle?.supportedFormats)) {
+        console.error(`   ❌ 不支持的图片格式: ${imageType}`);
+        return null;
       }
 
-      const imageType = ImageProcessor['getImageTypeFromUrl'](src);
-      console.log(`   - 识别的图片格式: ${imageType || '未知'}`);
-      if (!imageType) {
-        console.error(`   ❌ 无法识别图片格式: ${src}`);
+      // 如果图片加载失败，返回null
+      if (loadError || !imageData || !imageType) {
+        console.error(`   ❌ 图片加载失败: ${loadError || '未知错误'}`);
         return null;
+      }
+
+      console.log(`   ✅ 图片加载成功，格式: ${imageType}`);
+      
+      // 处理不同类型的图片源
+      let processedImageData: Buffer | string;
+      if (src.startsWith('data:')) {
+        // Base64图片 - imageData已经在loadImageData中处理
+        console.log(`   - 图片类型: Base64编码`);
+        processedImageData = imageData as string; // Base64返回的是string
+        console.log(`   - Base64数据长度: ${processedImageData.length} 字符`);
+      } else {
+        // 本地图片或网络图片 - imageData已经在loadImageData中处理
+        processedImageData = imageData as Buffer;
+        console.log(`   - 图片数据大小: ${processedImageData.length} 字节`);
       }
 
       // 创建图片运行对象
       console.log(`   - 创建ImageRun对象...`);
       const imageRunConfig = imageType === 'svg' ? {
         type: 'svg' as const,
-        data: imageData,
+        data: processedImageData,
         transformation: {
           width: imageStyle?.width || 400,
           height: imageStyle?.height || (imageStyle?.width || 400) * 0.667, // 默认3:2比例（适合大多数照片）
@@ -1397,7 +1386,7 @@ export class DocxMarkdownConverter implements MarkdownConverter {
         }
       } : {
         type: imageType as 'jpg' | 'png' | 'gif' | 'bmp',
-        data: imageData,
+        data: processedImageData,
         transformation: {
           width: imageStyle?.width || 400,
           height: imageStyle?.height || (imageStyle?.width || 400) * 0.667, // 默认3:2比例（适合大多数照片）

@@ -1,6 +1,7 @@
 import { ImageStyle } from '../types/style.js';
 import { ImageRun } from 'docx';
 import fs from 'fs';
+import path from 'path';
 import fetch from 'node-fetch';
 
 /**
@@ -19,8 +20,10 @@ export class ImageProcessor {
 
   /**
    * 加载图片数据
+   * @param src 图片路径
+   * @param baseDir Markdown文件所在目录，用于解析相对路径
    */
-  static async loadImageData(src: string): Promise<{ data: Buffer | string; type: string | null; error?: string }> {
+  static async loadImageData(src: string, baseDir?: string): Promise<{ data: Buffer | string; type: string | null; error?: string }> {
     try {
       if (src.startsWith('data:')) {
         // Base64图片
@@ -45,15 +48,30 @@ export class ImageProcessor {
           return { data: Buffer.from(''), type: null, error: '网络连接失败' };
         }
       } else {
-        // 本地图片
-        if (!fs.existsSync(src)) {
-          return { data: Buffer.from(''), type: null, error: '文件不存在' };
+        // 本地图片 - 需要基于baseDir解析相对路径
+        let resolvedPath = src;
+        
+        // 如果提供了baseDir且src是相对路径，则基于baseDir解析
+        if (baseDir && !path.isAbsolute(src)) {
+          resolvedPath = path.resolve(baseDir, src);
+          console.log(`   📁 [路径解析] 相对路径: ${src}`);
+          console.log(`   📁 [路径解析] 基础目录: ${baseDir}`);
+          console.log(`   📁 [路径解析] 解析后路径: ${resolvedPath}`);
         }
+        
+        if (!fs.existsSync(resolvedPath)) {
+          console.error(`   ❌ [路径解析] 文件不存在: ${resolvedPath}`);
+          return { data: Buffer.from(''), type: null, error: `文件不存在: ${resolvedPath}` };
+        }
+        
         try {
-          const data = fs.readFileSync(src);
-          const type = this.getImageTypeFromUrl(src);
+          const data = fs.readFileSync(resolvedPath);
+          // 重要：使用解析后的路径来获取图片类型！
+          const type = this.getImageTypeFromUrl(resolvedPath);
+          console.log(`   ✅ [路径解析] 文件读取成功，大小: ${data.length} 字节，类型: ${type}`);
           return { data, type };
         } catch (readError) {
+          console.error(`   ❌ [路径解析] 文件读取失败:`, readError);
           return { data: Buffer.from(''), type: null, error: '文件读取失败' };
         }
       }

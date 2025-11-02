@@ -15,7 +15,7 @@ import fs from 'fs/promises';
 const server = new McpServer(
   {
     name: 'aigroup-mdtoword-mcp',
-    version: '3.3.0',
+    version: '4.0.1',
   },
   {
     // 启用通知防抖，减少网络流量
@@ -190,7 +190,7 @@ server.registerTool(
   'markdown_to_docx',
   {
     title: 'Markdown 转 Word',
-    description: '将Markdown文档转换为Word文档（DOCX格式），支持样式配置和模板系统',
+    description: '将Markdown文档转换为Word文档（DOCX格式），支持样式配置、模板系统和多种图像嵌入方式（本地文件、网络图片、Base64编码）',
     inputSchema: MarkdownToDocxInputSchema.shape,
     outputSchema: MarkdownToDocxOutputSchema.shape,
   },
@@ -201,12 +201,21 @@ server.registerTool(
         throw new Error('必须提供 markdown 或 inputPath 参数');
       }
 
-      // 获取Markdown内容
+      // 获取Markdown内容和基础目录
       let markdownContent: string;
+      let baseDir: string | undefined;
+      
       if (args.inputPath) {
         markdownContent = await fs.readFile(args.inputPath, 'utf-8');
+        // 提取Markdown文件所在目录，用于解析相对路径图片
+        baseDir = path.dirname(path.resolve(args.inputPath));
+        console.log(`📁 [工具] Markdown文件路径: ${args.inputPath}`);
+        console.log(`📁 [工具] 解析的基础目录: ${baseDir}`);
       } else {
         markdownContent = args.markdown!;
+        // 如果直接提供markdown内容，使用当前工作目录作为基础目录
+        baseDir = process.cwd();
+        console.log(`📁 [工具] 使用当前工作目录作为基础目录: ${baseDir}`);
       }
 
       // 处理样式配置
@@ -237,8 +246,8 @@ server.registerTool(
         }
       }
 
-      // 执行转换
-      const converter = new DocxMarkdownConverter(finalStyleConfig as any);
+      // 执行转换，传递baseDir用于解析相对路径图片
+      const converter = new DocxMarkdownConverter(finalStyleConfig as any, baseDir);
       const docxContent = await converter.convert(markdownContent);
 
       // 保存文件
@@ -1475,77 +1484,6 @@ server.registerTool(
           {
             type: 'text',
             text: `❌ 获取表格样式失败: ${errorMessage}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  }
-);
-
-// ==================== Sampling 示例工具 ====================
-
-// 添加一个使用LLM采样来总结Markdown内容的工具
-server.registerTool(
-  'summarize_markdown',
-  {
-    title: 'Markdown 内容摘要',
-    description: '使用AI总结Markdown文档内容（需要客户端支持sampling）',
-    inputSchema: {
-      markdown: z.string().describe('要总结的Markdown内容'),
-      maxLength: z.number().min(50).max(500).optional().default(200).describe('摘要最大长度（字符数）'),
-    },
-    outputSchema: {
-      summary: z.string(),
-      originalLength: z.number(),
-      summaryLength: z.number(),
-    },
-  },
-  async ({ markdown, maxLength = 200 }) => {
-    try {
-      // 使用MCP sampling功能调用LLM生成摘要
-      const response = await server.server.createMessage({
-        messages: [
-          {
-            role: 'user',
-            content: {
-              type: 'text',
-              text: `请用中文总结以下Markdown文档的核心内容，摘要长度不超过${maxLength}字符：\n\n${markdown}`,
-            },
-          },
-        ],
-        maxTokens: 500,
-      });
-
-      const summary =
-        response.content.type === 'text'
-          ? response.content.text
-          : '无法生成摘要';
-
-      const output = {
-        summary,
-        originalLength: markdown.length,
-        summaryLength: summary.length,
-      };
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `📝 **文档摘要**\n\n${summary}\n\n---\n📊 原文长度: ${output.originalLength} 字符\n📊 摘要长度: ${output.summaryLength} 字符`,
-          },
-        ],
-        structuredContent: output,
-      };
-    } catch (error) {
-      // 如果客户端不支持sampling，提供友好的错误消息
-      const errorMessage =
-        error instanceof Error ? error.message : '未知错误';
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ 无法生成摘要: ${errorMessage}\n\n💡 提示：此功能需要客户端支持 MCP sampling 能力。`,
           },
         ],
         isError: true,

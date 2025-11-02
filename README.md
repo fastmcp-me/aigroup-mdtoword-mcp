@@ -37,7 +37,7 @@ aigroup-mdtoword-mcp/
 - ✅ 完整的 Markdown 语法支持（标题、段落、列表、表格、代码块、引用等）
 - 🎨 丰富的样式配置系统
 - 📋 多种预设模板（学术论文、商务报告、客户分析等）
-- 🖼️ 增强的图片处理（自适应尺寸、格式检测、错误处理）
+- 🖼️ **增强的图像嵌入支持** - 支持本地文件、网络图片、Base64 编码图片
 - 💧 水印支持（自定义文本、透明度、旋转角度）
 - 📄 页眉页脚（自定义内容、文字样式、边框、自动页码、首页/奇偶页不同）
 - 📑 自动目录生成（可配置级别和样式）
@@ -90,7 +90,7 @@ npx aigroup-mdtoword-mcp
     "aigroup-mdtoword-mcp": {
       "command": "npx",
       "args": ["-y", "aigroup-mdtoword-mcp"],
-      "alwaysAllow": ["markdown_to_docx", "summarize_markdown"]
+      "alwaysAllow": ["markdown_to_docx"]
     }
   }
 }
@@ -143,6 +143,67 @@ HTTP 服务器已配置 CORS，支持浏览器客户端访问。生产环境请�
   "inputPath": "./input/document.md",
   "filename": "output.docx",
   "outputPath": "./output"
+}
+```
+
+#### 指定输出目录
+
+```json
+{
+  "markdown": "# 我的文档\n\n内容",
+  "filename": "report.docx",
+  "outputPath": "./documents/reports"  // 保存到指定目录
+}
+```
+
+#### 使用绝对路径
+
+```json
+{
+  "markdown": "# 文档",
+  "filename": "document.docx",
+  "outputPath": "/home/user/documents"  // Linux/macOS 绝对路径
+}
+```
+
+```json
+{
+  "markdown": "# 文档",
+  "filename": "document.docx",
+  "outputPath": "C:\\Users\\Documents"  // Windows 绝对路径
+}
+```
+
+#### 包含图像的文档
+
+```json
+{
+  "markdown": "# 带图像的文档\n\n## 本地图片\n\n![本地图片描述](./images/sample.jpg)\n\n## 网络图片\n\n![网络图片描述](https://example.com/image.png)\n\n## Base64 图片\n\n![Base64图片描述](data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...)",
+  "filename": "document-with-images.docx",
+  "outputPath": "./output"
+}
+```
+
+#### 图像样式配置
+
+```json
+{
+  "markdown": "# 带样式的图像\n\n![示例图片](./images/photo.jpg)",
+  "filename": "styled-images.docx",
+  "styleConfig": {
+    "imageStyles": {
+      "default": {
+        "maxWidth": 600,
+        "maxHeight": 400,
+        "alignment": "center",
+        "border": {
+          "color": "CCCCCC",
+          "width": 2,
+          "style": "single"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -239,13 +300,12 @@ HTTP 服务器已配置 CORS，支持浏览器客户端访问。生产环境请�
 | `create_table_from_csv` | CSV转表格数据 | 表格数据导入，支持多种分隔符 |
 | `create_table_from_json` | JSON转表格数据 | JSON数据转表格，支持列选择 |
 | `list_table_styles` | 表格样式管理 | 查看可用表格样式，无需输入参数 |
-| `summarize_markdown` | AI文档摘要 | 智能内容摘要，需要Sampling支持 |
 
 ### 工具详情
 
 ### markdown_to_docx
 
-将 Markdown 文档转换为 Word 文档（DOCX 格式），支持丰富的样式配置和模板系统。
+将 Markdown 文档转换为 Word 文档（DOCX 格式），支持丰富的样式配置和模板系统，**特别支持多种图像嵌入方式**。
 
 **输入参数（使用 Zod 验证）：**
 
@@ -356,10 +416,32 @@ HTTP 服务器已配置 CORS，支持浏览器客户端访问。生产环境请�
 **使用说明：**
 - `markdown` 和 `inputPath` 参数互斥，必须提供其中一个
 - `filename` 必须以 `.docx` 结尾
+- `outputPath` 可选，默认为当前工作目录，支持相对路径和绝对路径
 - 如果不指定 `template` 和 `styleConfig`，将使用默认的客户分析模板
 - 模板配置会与直接样式配置合并，自定义样式优先级高于模板样式
 - 所有颜色值必须是6位十六进制格式（如 "2E74B5"）
 - 间距单位为缇（Twip），字号单位为半点
+
+**图像嵌入支持：**
+- **本地图片**：`![图片描述](./images/photo.jpg)`
+- **网络图片**：`![图片描述](https://example.com/image.png)`
+- **Base64 图片**：`![图片描述](data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...)`
+- **支持的格式**：PNG、JPEG、GIF、BMP、SVG
+- **自动处理**：尺寸调整、格式检测、错误处理
+
+**outputPath 参数详解：**
+- **默认行为**：不指定时，文件保存在当前工作目录
+- **相对路径**：如 `"./output"`、`"../documents"`
+- **绝对路径**：如 `"/home/user/documents"`、`"C:\\Users\\Documents"`
+- **自动创建目录**：如果指定目录不存在，系统会自动创建
+- **路径示例**：
+  ```json
+  {
+    "markdown": "# 文档",
+    "filename": "output.docx",
+    "outputPath": "./output"  // 保存到当前目录下的 output 文件夹
+  }
+  ```
 
 ### create_table_from_csv
 
@@ -433,30 +515,6 @@ HTTP 服务器已配置 CORS，支持浏览器客户端访问。生产环境请�
 }
 ```
 
-### summarize_markdown
-
-使用 AI 总结 Markdown 文档内容（演示 MCP Sampling 功能）。
-
-**输入参数（使用 Zod 验证）：**
-
-```typescript
-{
-  markdown: string,            // 要总结的Markdown内容（必需）
-  maxLength?: number           // 摘要最大长度（50-500字符，可选，默认200）
-}
-```
-
-**输出（结构化）：**
-
-```typescript
-{
-  summary: string,             // 生成的摘要内容
-  originalLength: number,      // 原文长度（字符数）
-  summaryLength: number        // 摘要长度（字符数）
-}
-```
-
-**注意：** 此功能需要客户端支持 MCP sampling 能力。如果客户端不支持，将返回错误提示。
 
 ## 📚 MCP 资源
 
