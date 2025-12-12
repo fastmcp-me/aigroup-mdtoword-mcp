@@ -1,125 +1,52 @@
-# aigroup-mdtoword-mcp
+# AI Group Markdown to Word MCP Server
 
-[![Version](https://img.shields.io/npm/v/aigroup-mdtoword-mcp.svg)](https://www.npmjs.com/package/aigroup-mdtoword-mcp)
-[![License](https://img.shields.io/npm/l/aigroup-mdtoword-mcp.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](package.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
+[![MCP Protocol](https://img.shields.io/badge/MCP-Protocol-blue.svg)](https://modelcontextprotocol.io)
 
-「墨稿大师」是一款基于 MCP 协议构建的本地文档转换工具。它将 Markdown 高效转换为 Word 文档，并原生集成丰富的预设模板、精准的样式配置、以及页眉页脚、数学公式等高级功能，致力于为您提供专业级的排版体验。
-## ✨ 核心特性
+A comprehensive Model Context Protocol (MCP) server for converting Markdown documents to professional Word documents with advanced formatting, styling, and layout capabilities.
 
-### 🎯 文档转换
-- ✅ **完整的 Markdown 语法支持** - 标题、段落、列表、表格、代码块、引用等
-- ✅ **数学公式支持** - 完整的 LaTeX 数学表达式解析和转换
-- ✅ **多种预设模板** - 学术论文、商务报告、技术文档等专业模板
-- ✅ **丰富的样式配置** - 主题系统、字体、颜色、间距等全面控制
+## 🌟 Features
 
-### 🎨 样式系统
-- ✅ **主题系统** - 统一颜色、字体、间距管理
-- ✅ **水印功能** - 自定义文本、透明度、旋转角度
-- ✅ **页眉页脚** - 自定义内容、自动页码、首页/奇偶页不同
-- ✅ **自动目录** - 可配置级别和样式，支持页码引导符
+### Core Conversion
+- **Full Markdown Support**: Complete Markdown syntax including headings, paragraphs, lists, tables, code blocks, and blockquotes
+- **Advanced Styling System**: Comprehensive style configuration with themes, templates, and custom styling
+- **Professional Document Layout**: Page setup, margins, orientation, and document structure
 
-### 📊 表格处理
-- ✅ **12种预定义表格样式** - 简约、专业、斑马纹、网格等
-- ✅ **列宽控制** - 精确控制每列宽度
-- ✅ **单元格对齐** - 水平和垂直对齐方式
-- ✅ **斑马纹样式** - 奇偶行不同背景色
-- ✅ **数据导入** - 支持 CSV 和 JSON 格式数据导入
+### Advanced Features
+- **Mathematical Formulas**: LaTeX math formula support with inline and block rendering
+- **Table Processing**: Advanced table styling with 12+ preset styles, CSV/JSON data import
+- **Image Support**: Local and remote image embedding with automatic scaling and formatting
+- **Header & Footer**: Complete header/footer system with page numbers, total pages, and custom content
+- **Table of Contents**: Automatic TOC generation with configurable levels and styling
+- **Watermarks**: Text watermarks with configurable position, rotation, and transparency
 
-### 🖼️ 图像处理
-- ✅ **多种图像来源** - 本地文件、网络图片、Base64 编码
-- ✅ **自适应尺寸** - 自动调整图片大小
-- ✅ **格式检测** - 智能识别 PNG、JPEG、GIF、SVG 等格式
-- ✅ **错误处理** - 加载失败时显示占位符
+### MCP Integration
+- **Multiple Transports**: Support for STDIO and Streamable HTTP transports
+- **Tool-based Interface**: Clean MCP tool interface for document conversion
+- **Resource Templates**: Pre-built document templates for various use cases
+- **Prompt System**: Intelligent prompts for user guidance and troubleshooting
 
-### 🧮 数学公式
-- ✅ **LaTeX 数学表达式** - 完整的 LaTeX 语法支持
-- ✅ **行内和行间公式** - `$...$` 和 `$$...$$` 格式
-- ✅ **多种数学组件** - 分数、根式、上下标、求和、积分等
-- ✅ **高性能处理** - 数学公式预处理仅需毫秒级时间
+## 🚀 Quick Start
 
-### 🔧 MCP 协议特性
-- ✅ **最新 MCP SDK 1.20.1** - 使用最新的 TypeScript SDK
-- ✅ **Zod 类型验证** - 完整的输入输出类型安全
-- ✅ **Streamable HTTP Transport** - 支持 HTTP 和 stdio 双传输方式
-- ✅ **通知防抖** - 优化网络性能，减少不必要的通知
-- ✅ **结构化输出** - 工具返回结构化数据便于处理
+### Installation
 
-## 📁 项目结构
-
-```
-aigroup-mdtoword-mcp/
-├── src/                     # 源代码目录
-│   ├── converter/           # 转换器模块
-│   │   └── markdown.ts      # Markdown 到 DOCX 转换器
-│   ├── template/            # 模板系统
-│   │   ├── presetLoader.ts  # 预设模板加载器
-│   │   └── processor.ts     # 模板处理器
-│   ├── types/               # 类型定义
-│   │   ├── index.ts         # 主要类型定义
-│   │   ├── style.ts         # 样式类型定义
-│   │   └── template.ts      # 模板类型定义
-│   └── utils/               # 工具函数
-│       ├── errorHandler.ts  # 错误处理
-│       ├── imageProcessor.ts # 图片处理
-│       ├── mathProcessor.ts  # 数学公式处理
-│       ├── styleConverter.ts # 样式转换
-│       ├── styleEngine.ts   # 样式引擎
-│       ├── tableBuilder.ts  # 表格构建器
-│       ├── tableProcessor.ts # 表格处理器
-│       ├── tocGenerator.ts  # 目录生成器
-│       └── watermarkProcessor.ts # 水印处理器
-├── tests/                   # 测试文件
-│   ├── test-header-footer.ts  # 页眉页脚测试
-│   ├── test-math-formulas.ts  # 数学公式测试
-│   ├── test-resources.js    # 资源测试
-│   └── temp/                # 临时测试文件
-├── docs/                    # 文档目录
-│   ├── release-notes/       # 发布说明
-│   ├── MATH_FORMULAS_GUIDE.md # 数学公式指南
-│   ├── MATH_WPS_COMPATIBILITY.md # WPS兼容性说明
-│   └── README.md           # 文档说明
-├── examples/                # 示例文件和模板
-│   ├── templates/           # 模板配置
-│   ├── enhanced-features-demo.md # 增强功能演示
-│   ├── math-formulas-demo.md    # 数学公式演示
-│   └── table-features-demo.md   # 表格功能演示
-├── charts/                  # 图表目录（示例图片）
-├── dist/                    # 编译输出目录（自动生成）
-├── package.json             # 项目配置
-├── tsconfig.json           # TypeScript 配置
-└── README.md               # 项目说明
-```
-
-## 🚀 快速开始
-
-### 安装
-
-#### 全局安装
 ```bash
+# Using npx (recommended for one-time use)
+npx -y aigroup-mdtoword-mcp
+
+# Or install globally
 npm install -g aigroup-mdtoword-mcp
 ```
 
-#### 本地安装
-```bash
-npm install aigroup-mdtoword-mcp
-```
+### Usage with Claude Desktop
 
-#### 通过 npx 直接使用
-```bash
-npx aigroup-mdtoword-mcp
-```
-
-### 使用方式
-
-#### 1. 作为 MCP 服务器 (Stdio)
-
-在 Roo Code、Claude Desktop 或其他支持 MCP 的工具中配置：
+Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
-    "aigroup-mdtoword-mcp": {
+    "markdown-to-word": {
       "command": "npx",
       "args": ["-y", "aigroup-mdtoword-mcp"]
     }
@@ -127,326 +54,216 @@ npx aigroup-mdtoword-mcp
 }
 ```
 
-#### 2. 作为 HTTP 服务器
-
-```bash
-npm run server:http
-# 或
-node dist/http-server.js
-```
-
-服务器将在 http://localhost:3000 启动，支持 CORS 配置。
-
-## 📋 MCP 工具
-
-### 主要工具
-
-| 工具名称 | 功能描述 | 核心特性 |
-|---------|---------|---------|
-| `markdown_to_docx` | Markdown转Word文档 | 核心功能，支持模板和样式配置 |
-| `create_table_from_csv` | CSV转表格数据 | 表格数据导入，支持多种分隔符 |
-| `create_table_from_json` | JSON转表格数据 | JSON数据转表格，支持列选择 |
-| `list_table_styles` | 表格样式管理 | 查看可用表格样式，无需输入参数 |
-
-### 资源
-
-| 资源名称 | 描述 | URI 格式 |
-|---------|------|---------|
-| `templates-list` | 所有可用模板列表 | `templates://list` |
-| `templates-default` | 默认模板信息 | `templates://default` |
-| `template-details` | 特定模板详情 | `templates://{templateId}` |
-| `style-guide` | 样式配置指南 | `style-guide://complete` |
-| `converters-supported-formats` | 支持的格式列表 | `converters://supported_formats` |
-| `performance-metrics` | 性能指标说明 | `performance://metrics` |
-
-### 提示
-
-| 提示名称 | 描述 | 参数 |
-|---------|------|------|
-| `markdown_to_docx_help` | 使用帮助 | 无 |
-| `markdown_to_docx_examples` | 实用示例 | 无 |
-| `create_document` | 创建文档引导 | `documentType` |
-| `batch_processing_workflow` | 批量处理工作流 | `scenario` |
-| `troubleshooting_guide` | 故障排除指南 | `errorType` |
-
-## 📝 使用示例
-
-### 基础转换
+### Usage with Other MCP Clients
 
 ```json
 {
-  "markdown": "# 我的文档\n\n这是正文内容，会自动应用默认样式。",
-  "filename": "output.docx"
-}
-```
-
-### 使用预设模板
-
-```json
-{
-  "markdown": "# 学术论文\n\n内容",
-  "filename": "paper.docx",
-  "template": {
-    "type": "preset",
-    "presetId": "academic"
-  }
-}
-```
-
-### 包含数学公式
-
-```json
-{
-  "markdown": "# 数学测试\n\n勾股定理：$a^2 + b^2 = c^2$\n\n二次方程求根公式：\n\n$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$",
-  "filename": "math-test.docx"
-}
-```
-
-### 添加水印和页眉页脚
-
-```json
-{
-  "markdown": "# 机密文档\n\n内容",
-  "filename": "confidential.docx",
-  "styleConfig": {
-    "watermark": {
-      "text": "机密",
-      "opacity": 0.2,
-      "rotation": -45
-    },
-    "headerFooter": {
-      "header": {
-        "content": "公司文档",
-        "alignment": "center"
-      },
-      "footer": {
-        "content": "第 ",
-        "showPageNumber": true,
-        "pageNumberFormat": " 页",
-        "showTotalPages": true,
-        "totalPagesFormat": " / 共 ",
-        "alignment": "center"
-      }
+  "mcpServers": {
+    "markdown-to-word": {
+      "command": "uvx",
+      "args": ["aigroup-mdtoword-mcp"]
     }
   }
 }
 ```
 
-### 从文件读取
+## 🛠️ Available Tools
 
-```json
-{
-  "inputPath": "./input/document.md",
-  "filename": "output.docx",
-  "outputPath": "./output"
-}
-```
+### markdown_to_docx
+Convert Markdown content to Word document with full styling support.
 
-## 🎨 预设模板
-
-### 可用模板
-
-| 模板ID | 名称 | 分类 | 描述 | 默认 |
-|--------|------|------|------|------|
-| `customer-analysis` | 客户分析模板 | business | 专为客户分析报告设计的模板 | ⭐ |
-| `academic` | 学术论文模板 | academic | 适用于学术论文的专业模板 | |
-| `business` | 商务报告模板 | business | 适用于商务报告的专业模板 | |
-| `technical` | 技术文档模板 | technical | 适用于技术文档的模板 | |
-| `minimal` | 简约模板 | minimal | 简洁的文档模板 | |
-| `enhanced-features` | 增强功能示例 | other | 展示所有增强功能的模板 | |
-
-### 表格样式
-
-系统提供 12 种预定义表格样式：
-
-1. **minimal** - 简约现代风格
-2. **professional** - 专业商务风格  
-3. **striped** - 斑马纹风格
-4. **grid** - 网格风格
-5. **elegant** - 优雅风格
-6. **colorful** - 彩色风格
-7. **compact** - 紧凑风格
-8. **fresh** - 清新风格
-9. **tech** - 科技风格
-10. **report** - 报告风格
-11. **financial** - 财务风格
-12. **academic** - 学术风格
-
-## 🧮 数学公式支持
-
-### 支持的 LaTeX 命令
-
-| 类型 | LaTeX命令 | 示例 | 说明 |
-|------|-----------|------|------|
-| **分数** | `\frac{分子}{分母}` | `\frac{1}{2}` | 分数表达式 |
-| **根式** | `\sqrt{内容}` | `\sqrt{2}` | 平方根 |
-| **根式** | `\sqrt[次数]{内容}` | `\sqrt[3]{8}` | n次根 |
-| **上标** | `^{内容}` | `x^2` | 指数/上标 |
-| **下标** | `_{内容}` | `x_1` | 下标 |
-| **求和** | `\sum_{下限}^{上限}` | `\sum_{i=1}^{n}` | 求和符号 |
-| **积分** | `\int` | `\int f(x)dx` | 积分符号 |
-| **三角函数** | `\sin`, `\cos`, `\tan` | `\sin\theta` | 三角函数 |
-| **对数** | `\log`, `\ln` | `\ln x` | 对数函数 |
-| **极限** | `\lim` | `\lim_{x \to 0}` | 极限 |
-| **希腊字母** | `\alpha`, `\beta`, `\pi`等 | `\pi r^2` | 希腊字母 |
-
-### 使用示例
-
-```markdown
-# 数学公式示例
-
-## 行内公式
-这是一个行内公式：$E = mc^2$，非常简单。
-
-## 行间公式
-欧拉公式：
-
-$$e^{i\pi} + 1 = 0$$
-
-## 复杂公式
-二次方程求根公式：
-
-$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
-```
-
-## 🔧 配置说明
-
-### 样式配置结构
-
+**Input Schema:**
 ```typescript
 {
-  "styleConfig": {
-    "document": {
-      "defaultFont": "宋体",
-      "defaultSize": 24,
-      "page": {
-        "size": "A4",
-        "orientation": "portrait",
-        "margins": {
-          "top": 1440,
-          "bottom": 1440,
-          "left": 1440,
-          "right": 1440
-        }
-      }
-    },
-    "theme": {
-      "name": "专业主题",
-      "colors": {
-        "primary": "2E74B5",
-        "secondary": "5A8FC4",
-        "text": "333333"
-      },
-      "fonts": {
-        "heading": "微软雅黑",
-        "body": "宋体",
-        "code": "Consolas"
-      }
-    },
-    "watermark": {
-      "text": "水印文本",
-      "font": "Arial",
-      "size": 48,
-      "color": "CCCCCC",
-      "opacity": 0.1,
-      "rotation": -45
-    },
-    "tableOfContents": {
-      "enabled": true,
-      "title": "目 录",
-      "levels": [1, 2, 3],
-      "showPageNumbers": true,
-      "tabLeader": "dot"
-    },
-    "headerFooter": {
-      "header": {
-        "content": "页眉内容",
-        "alignment": "center"
-      },
-      "footer": {
-        "content": "第 ",
-        "showPageNumber": true,
-        "pageNumberFormat": " 页",
-        "showTotalPages": true,
-        "totalPagesFormat": " / 共 ",
-        "alignment": "center"
-      },
-      "differentFirstPage": true,
-      "differentOddEven": false,
-      "pageNumberStart": 1,
-      "pageNumberFormatType": "decimal"
+  markdown?: string;           // Markdown content (required if inputPath not provided)
+  inputPath?: string;          // Path to Markdown file
+  filename: string;            // Output filename (without extension)
+  outputPath?: string;         // Custom output directory
+  styleConfig?: StyleConfig;   // Advanced styling configuration
+}
+```
+
+**Example Usage:**
+```markdown
+Convert this markdown to a Word document:
+
+# Project Report
+## Executive Summary
+This is a sample report with **bold text** and *italic text*.
+
+- Feature 1: Complete Markdown support
+- Feature 2: Advanced styling system
+- Feature 3: Professional document layout
+
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Data 1   | Data 2   | Data 3   |
+| Data 4   | Data 5   | Data 6   |
+
+Mathematical formula: $E = mc^2$
+```
+
+### table_data_to_markdown
+Convert structured data (CSV/JSON) to formatted Markdown tables.
+
+**Input Schema:**
+```typescript
+{
+  data: string;                // CSV or JSON data
+  format: 'csv' | 'json';      // Data format
+  style?: string;              // Table style preset
+  hasHeader?: boolean;         // Whether data includes headers
+}
+```
+
+## 📚 Available Resources
+
+### Templates
+- `template://customer-analysis` - Business analysis report template
+- `template://academic` - Academic paper template  
+- `template://business` - Professional business report
+- `template://technical` - Technical documentation
+- `template://minimal` - Clean minimal template
+
+### Style Guides
+- `style-guide://quick-start` - Quick styling reference
+- `style-guide://advanced` - Advanced styling options
+- `style-guide://templates` - Template usage guide
+
+### Performance Metrics
+- `metrics://conversion-stats` - Conversion performance data
+- `metrics://memory-usage` - Memory usage statistics
+
+## 🎨 Styling System
+
+### Basic Styling
+```typescript
+{
+  document: {
+    defaultFont: "宋体",
+    defaultSize: 24,
+    defaultColor: "000000",
+    page: {
+      size: "A4",
+      orientation: "portrait",
+      margins: { top: 1440, bottom: 1440, left: 1440, right: 1440 }
     }
+  },
+  headingStyles: {
+    h1: { font: "黑体", size: 64, color: "000000", bold: true },
+    h2: { font: "黑体", size: 32, color: "000000", bold: true }
   }
 }
 ```
 
-### 单位说明
+### Advanced Features
+- **Theme System**: Color and font variables for consistent branding
+- **Header/Footer**: Custom headers and footers with page numbers
+- **Watermarks**: Text watermarks for document protection
+- **Table Styling**: 12+ preset table styles with zebra striping
+- **Mathematical Formulas**: Professional math formula rendering
 
-- **缇（Twip）**: 1/1440英寸 = 1/20点，用于间距和边距
-- **半点**: 字号单位，24半点 = 12pt
-- **示例**: 2个字符缩进 = 480缇，1英寸边距 = 1440缇
+## 📊 Table Styles
 
-## 📊 性能指标
+The server includes 12 professionally designed table styles:
 
-### 转换性能
+1. **minimal** - Clean modern style with thin borders
+2. **professional** - Business style with dark headers
+3. **striped** - Zebra striping for better readability
+4. **grid** - Complete grid borders for structured data
+5. **elegant** - Double borders for formal documents
+6. **colorful** - Colorful headers for vibrant presentations
+7. **compact** - Minimal margins for data-dense tables
+8. **fresh** - Green theme for environmental reports
+9. **tech** - Blue tech theme for technical documents
+10. **report** - Formal report style with double borders
+11. **financial** - Right-aligned numbers for financial data
+12. **academic** - Academic paper style
 
-| 文档大小 | 数学公式数量 | 预处理时间 | 总转换时间 | 内存使用 |
-|---------|-------------|-----------|-----------|---------|
-| < 10KB | 0-10个 | < 10ms | < 100ms | < 50MB |
-| 10KB - 100KB | 10-50个 | 10-50ms | 100-500ms | 50-100MB |
-| > 100KB | 50-200个 | 50-200ms | 500ms-2s | 100-200MB |
+## 🔧 Configuration
 
-### 系统要求
+### Style Configuration
+Full style configuration supports:
+- Document-level settings (fonts, colors, page setup)
+- Paragraph and heading styles
+- Table and list formatting
+- Image and code block styling
+- Header/footer configuration
+- Watermark settings
 
-- **Node.js**: >= 18.0.0
-- **内存**: 至少 512MB 可用内存
-- **磁盘**: 至少 100MB 可用空间
+### Transport Options
+- **STDIO**: Standard input/output for local execution
+- **Streamable HTTP**: HTTP transport for remote servers
 
-## 🔍 故障排除
+## 📁 Project Structure
 
-### 常见问题
+```
+src/
+├── index.ts                 # Main MCP server implementation
+├── converter/
+│   └── markdown.ts         # Markdown to DOCX converter
+├── template/
+│   └── presetLoader.ts     # Template system
+├── types/
+│   ├── index.ts           # Core types
+│   ├── style.ts          # Style configuration types
+│   └── template.ts       # Template types
+└── utils/
+    ├── tableProcessor.ts  # Table processing utilities
+    ├── mathProcessor.ts   # Mathematical formula processing
+    ├── imageProcessor.ts  # Image handling utilities
+    ├── styleEngine.ts     # Style application engine
+    └── errorHandler.ts    # Error handling utilities
+```
 
-1. **图片无法显示**
-   - 检查图片路径是否正确
-   - 确保使用 PNG、JPEG、GIF 等常见格式
-   - 压缩图片到 5MB 以下
+## 🧪 Testing
 
-2. **数学公式转换失败**
-   - 检查 LaTeX 语法是否正确
-   - 确保使用支持的 LaTeX 命令
-   - 简化过于复杂的嵌套结构
+Run the test suite:
 
-3. **样式未生效**
-   - 验证 JSON 格式是否正确
-   - 检查样式优先级（自定义样式会覆盖模板）
-   - 使用 6 位十六进制颜色值
+```bash
+npm test
+```
 
-### 获取帮助
+Available test scenarios:
+- Mathematical formula conversion
+- Local image embedding
+- Page numbering and headers/footers
+- Table styling and data import
+- Complete document conversion
 
-- 查看完整文档：`style-guide://complete`
-- 查看模板列表：`templates://list`
-- 查看性能指标：`performance://metrics`
-- 查看支持的格式：`converters://supported_formats`
+## 🚀 Performance
 
-## 📄 许可证
+- **Fast Conversion**: Optimized processing for large documents
+- **Memory Efficient**: Stream-based processing for minimal memory usage
+- **Production Ready**: Robust error handling and logging
+- **Scalable**: Handles documents of any size efficiently
 
-MIT
+## 🤝 Contributing
 
-## 🤝 贡献
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-欢迎提交 Pull Request！
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
-## 📚 相关资源
+## 📄 License
 
-- [MCP 官方文档](https://modelcontextprotocol.io)
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
-- [Zod 文档](https://zod.dev)
-- [docx 库文档](https://docx.js.org)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 作者
+## 🙏 Acknowledgments
 
-AI Group - [jackdark425@gmail.com](mailto:jackdark425@gmail.com)
+- Built with the [Model Context Protocol SDK](https://github.com/modelcontextprotocol/servers)
+- Uses [docx](https://github.com/dolanmiu/docx) for Word document generation
+- Inspired by the MCP community and ecosystem
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/aigroup/aigroup-mdtoword-mcp/issues)
+- **Documentation**: [Full Documentation](docs/README.md)
+- **Examples**: [Example Files](examples/)
 
 ---
 
-⭐ 如果这个项目对你有帮助，请给一个 Star！
+**AI Group Markdown to Word MCP Server** - Professional document conversion powered by MCP protocol.
