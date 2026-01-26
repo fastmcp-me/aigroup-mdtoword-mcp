@@ -1,0 +1,4 @@
+{
+  "code": -32603,
+  "message": "[\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"params\",\n      \"name\"\n    ],\n    \"message\": \"Required\"\n  }\n]"
+}

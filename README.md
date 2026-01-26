@@ -27,6 +27,12 @@ A comprehensive Model Context Protocol (MCP) server for converting Markdown docu
 - **Resource Templates**: Pre-built document templates for various use cases
 - **Prompt System**: Intelligent prompts for user guidance and troubleshooting
 
+### HTTP API & OpenAI Plugin Support
+- **Dual API Support**: Both MCP protocol and simplified HTTP API endpoints
+- **OpenAI Plugin Compatible**: Full OpenAI plugin specification support
+- **RESTful Endpoints**: Simple REST API for easy integration
+- **OpenAPI Specification**: YAML and JSON API documentation available
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -257,6 +263,44 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with the [Model Context Protocol SDK](https://github.com/modelcontextprotocol/servers)
 - Uses [docx](https://github.com/dolanmiu/docx) for Word document generation
 - Inspired by the MCP community and ecosystem
+
+## ☁️ Cloudflare Worker Deployment
+
+This project supports deployment to Cloudflare Workers. Follow these steps to deploy:
+
+### Prerequisites
+
+1. Install Node.js (version >= 18.0.0)
+2. Install Wrangler CLI: `npm install -g wrangler`
+3. Login to Cloudflare: `wrangler login`
+
+### Deployment Steps
+
+1. Update `wrangler.toml` with your account ID:
+   ```toml
+   [env.production]
+   account_id = "your-account-id-here"  # Replace with your Cloudflare account ID
+   ```
+
+2. Deploy to Cloudflare Workers:
+   ```bash
+   wrangler deploy
+   ```
+
+### API Endpoints
+
+After deployment, your service will be accessible via:
+
+- `https://your-worker.your-subdomain.workers.dev/` - Main info page
+- `https://your-worker.your-subdomain.workers.dev/health` - Health check
+- `https://your-worker.your-subdomain.workers.dev/mcp` - MCP protocol endpoint
+- `https://your-worker.your-subdomain.workers.dev/convert` - Simplified HTTP API
+- `https://your-worker.your-subdomain.workers.dev/.well-known/ai-plugin.json` - OpenAI plugin manifest
+- `https://your-worker.your-subdomain.workers.dev/openapi.yaml` - OpenAPI specification (YAML)
+- `https://your-worker.your-subdomain.workers.dev/openapi.json` - OpenAPI specification (JSON)
+- `https://your-worker.your-subdomain.workers.dev/logo.png` - Plugin logo
+
+For detailed deployment instructions, see [docs/DEPLOYMENT_INSTRUCTIONS.md](./docs/DEPLOYMENT_INSTRUCTIONS.md).
 
 ## 📞 Support
 
